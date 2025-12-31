@@ -75,7 +75,7 @@ public class RateLimiterFilter extends OncePerRequestFilter{
 		response.setHeader("X-RateLimit-Key", key);
 		response.setHeader("X-RateLimit-Remaining", String.valueOf(decision.remaining()));
 		response.setHeader("X-RateLimit-RetryAfter-Ms", String.valueOf(decision.retryAfterMs()));
-		response.setHeader("X-RateLimit-ResetIn-Ms", String.valueOf(decision.resetInMs()));
+		response.setHeader("X-RateLimit-ResetIn-Ms", String.valueOf(decision.timeToFullMs()));
 		
 		if(!decision.isAllowed()) {
 			response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
