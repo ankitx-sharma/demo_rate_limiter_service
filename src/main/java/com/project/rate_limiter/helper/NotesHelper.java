@@ -12,7 +12,11 @@ public class NotesHelper {
 
 	    Map<String, Object> cfg = new HashMap<>();
 	    cfg.put("limit", limit);
-	    cfg.put("windowMs", windowMs);
+	    
+	    if("FIXED_WINDOW_BOUNDARY_BURST".equals(scenario)) {
+	    	cfg.put("windowMs", windowMs);
+	    }
+	  
 	    cfg.put("tokenBucketRefillPerSec", refillRate);
 	    cfg.put("algorithm", algorithm);
 	    cfg.put("userId", userId);
