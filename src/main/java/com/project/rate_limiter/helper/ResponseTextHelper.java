@@ -2,6 +2,7 @@ package com.project.rate_limiter.helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,12 +11,12 @@ import com.project.rate_limiter.controller.dto.DemoEvent;
 public class ResponseTextHelper {
 		
 	public static Map<String, Object> buildConfig(String algorithm, int limit, 
-			long windowMs, int refillRate) {
+			long timePeriodLimitInMs, int refillRate) {
 	    Map<String, Object> cfg = new HashMap<>();	    
 	    switch (algorithm) {
 	        case "FIXED_WINDOW", "SLIDING_WINDOW" -> {
 	        	cfg.put("limit", limit);
-	        	cfg.put("windowMs", windowMs);
+	        	cfg.put("timePeriodLimitIn_Ms", timePeriodLimitInMs);
 	        }
 	        case "TOKEN_BUCKET" -> {
 	        	cfg.put("capacity", limit);
@@ -38,6 +39,9 @@ public class ResponseTextHelper {
 				case 429 -> {
 					timeline.add(Map.of("retryAfterMs", event.retryAfterMs(), "status", event.status()));
 				}
+				case 0 -> {
+					timeline.add(Map.of("comment", event.comment(), "event", "MARKER"));
+				}
 				default -> {
 					timeline.add(Map.of("retryAfterMs", event.retryAfterMs(), "status", event.status()));
 				}
@@ -49,8 +53,12 @@ public class ResponseTextHelper {
 	
 	public static Map<String, Object> generateSummary(int allowed, int blocked, 
 			Map<String, Object> config) {
-		return Map.of("config", config, "blocked", blocked, "allowed", allowed);
+		Map<String, Object> summary = new LinkedHashMap<>();
+		
+		summary.put("allowed", allowed);
+		summary.put("blocked", blocked);
+		summary.put("config", config);
+		
+		return summary;
 	}
-
-	
 }
