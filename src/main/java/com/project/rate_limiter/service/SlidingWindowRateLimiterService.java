@@ -32,6 +32,7 @@ public class SlidingWindowRateLimiterService {
 				new UserRequestInfo(currentTime, 0, new ArrayDeque<>()));
 		
 		int originalQueueSize = userInfo.getRequestList().size();
+		
 		userInfo.getRequestList().removeIf(val -> currentTime - val > TIME_WINDOW_MS);
 		
 		int requestsDataPurged = originalQueueSize - userInfo.getRequestList().size();
@@ -39,7 +40,8 @@ public class SlidingWindowRateLimiterService {
 		
 		if(userInfo.getRequestList().size() >= REQUEST_LIMIT) {
 			long oldest = userInfo.getRequestList().peekFirst();
-			long retryAfterMs = Math.max(0, (currentTime - oldest));
+			
+			long retryAfterMs = Math.max(0, TIME_WINDOW_MS -(currentTime - oldest));
 			return new RateLimiterDecision(false, 0, retryAfterMs, retryAfterMs);
 		}
 		
