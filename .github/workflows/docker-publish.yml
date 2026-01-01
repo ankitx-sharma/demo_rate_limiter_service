@@ -33,7 +33,7 @@ jobs:
         id: app
         uses: docker/metadata-action@v5
         with: 
-          images: ${{ env.REGISTRY }}/${{ IMAGE_OWNER }}/${{ env.REPO_NAME }}-app
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.REPO_NAME }}-app
           tags: |
             type=ref,event=tag
             type=raw,value=lates
