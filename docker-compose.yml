@@ -1,0 +1,19 @@
+services:
+    redis:
+        image: redis:7-alpine
+        container_name: rate-limiter-redis
+        ports:
+            - "6379:6379"
+
+    rate-limiter:
+        build: .
+        container_name: rate-limiter
+        ports:
+            - "8080:8080"
+        environment:
+            JAVA_OPTS: "-Xms256m -Xmx512m"
+            # If your app needs Redis at runtime:
+            SPRING_DATA_REDIS_HOST: redis
+            SPRING_DATA_REDIS_PORT: 6379
+        depends_on:
+            - redis
