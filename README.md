@@ -1,5 +1,7 @@
 # Rate Limiter Service (Spring Boot)
 
+<img src="assets/ui_screen.png" alt="Project Title" width="1000" align="center">
+
 A lightweight **Rate Limiting microservice** built with **Java & Spring Boot**.  
 It supports multiple classic rate-limiting algorithms and allows **dynamic algorithm selection per request** using HTTP headers.
 
