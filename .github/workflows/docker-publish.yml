@@ -36,7 +36,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.REPO_NAME }}-app
           tags: |
             type=ref,event=tag
-            type=raw,value=lates
+            type=raw,value=latest
 
       - name: Build and Push App
         uses: docker/build-push-action@v6
