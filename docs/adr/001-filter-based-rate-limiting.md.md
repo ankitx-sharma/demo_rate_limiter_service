@@ -1,28 +1,36 @@
-# Design — Rate Limiter Playground
+# ADR 001: Filter-Based Rate Limiting (Demonstration Layer)
 
-This document explains how the project is **designed as a learning tool**, not a production service.
+### Decision
+Use a `OncePerRequestFilter` to demonstrate rate limiting at the infrastructure level.
 
----
-
-## Why Dedicated Triggers Per Algorithm
-
-Each algorithm has a **specific trigger endpoint**.
-
-Reasons:
-- avoids cross-algorithm interference
-- ensures repeatable experiments
-- allows algorithm-specific timing patterns
+### Status
+Accepted
 
 ---
 
-## Controlled Request Execution
+## Why This Decision Matters (Educationally)
 
-Each trigger:
-- executes a known number of requests
-- uses a known timing pattern
-- records results sequentially
+This shows learners:
+- rate limiting is cross-cutting
+- it should run before business logic
+- controllers should not enforce limits
 
-This ensures:
-- predictable output
-- meaningful comparison
-- teachable behavior
+---
+
+## Consequences
+
+### Positive
+- realistic architecture exposure
+- clean separation of concerns
+- bridges theory and practice
+
+### Negative
+- adds architectural complexity
+
+---
+
+## Educational Outcome
+
+This ADR ensures the project teaches:
+- **how rate limiting works**
+- **where rate limiting belongs**
