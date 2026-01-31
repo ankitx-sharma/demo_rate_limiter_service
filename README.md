@@ -1,117 +1,91 @@
-# Rate Limiter Service (Spring Boot)
+# Rate Limiter Playground (Learning Project)
 
 <img src="assets/ui_screen.png" alt="Project Title" width="1000" align="center">
 
-A lightweight **Rate Limiting microservice** built with **Java & Spring Boot**.  
-It supports multiple classic rate-limiting algorithms and allows **dynamic algorithm selection per request** using HTTP headers.
-
-This project is designed as a **reusable, pluggable component** that can be embedded into other backend systems or used as a standalone service.
-
----
-
-## Table of Contents
-- Features
-- Architecture Overview
-- Supported Algorithms
-- Configuration
-- Quick Start (Local)
-- Docker
-- API Usage
-- Demo Endpoints
-- Extensibility
-- Troubleshooting
-- References
+A lightweight Rate Limiting microservice built with Java & Spring Boot.  
+This project is a hands-on playground to learn and compare rate limiting algorithms by observing their real runtime behavior.  
+It supports multiple classic rate-limiting algorithms and allows dynamic algorithm selection per request using HTTP headers.
 
 ---
 
-## Features
-- **Three Rate Limiting Algorithms**
-  - Token Bucket (default)
-  - Fixed Window
-  - Sliding Window
-- **Global request filtering** using `OncePerRequestFilter`
-- **Per-request algorithm selection** via `X-RateLimit-Algorithm` header
-- **Flexible key strategy**
-  - Primary: `X-User-Id` header
-  - Fallback: client IP address
-- **Rich rate-limit response headers**
-  - `X-RateLimit-Remaining`
-  - `X-RateLimit-RetryAfter-Ms`
-  - `X-RateLimit-ResetIn-Ms`
-  - Standard `Retry-After` header on HTTP `429`
-- **Swagger / OpenAPI documentation**
-- Docker & Docker Compose support
-- Redis dependency included for future distributed rate-limiting
+ ## What This Project Is
+
+- A **tutorial-style Spring Boot application**
+- A **controlled experiment environment** for rate limiting
+- A way to *see* algorithm behavior, not just read about it
+
+You trigger requests → observe outcomes → understand why.
 
 ---
 
-## Architecture Overview
-The service uses a **filter-based architecture**:
+## Core Learning Goal
 
-### Core Components
-- **RateLimiterFilter**
-  - Intercepts incoming HTTP requests
-  - Determines the rate-limiting key (User ID or IP)
-  - Selects the algorithm based on request headers
-  - Applies rate limiting and blocks requests if necessary
-- **Rate Limiter Services**
-  - `TokenBucketRateLimiterService`
-  - `FixedSizeRateLimiterService`
-  - `SlidingWindowRateLimiterService`
-- **Decision Model**
-  - `RateLimiterDecision` encapsulates:
-    - allow/deny decision
-    - remaining quota
-    - retry/reset timing
+> “If I send requests in a certain pattern, how does each rate limiting algorithm respond — and why?”
 
-> Current implementation is **in-memory per instance**.  
-> For distributed setups, Redis can be used as a shared state store.
+
+### How Learning Happens Here
+
+Each algorithm exposes a **dedicated trigger endpoint**.
+
+When triggered, the system:
+1. Executes a predefined request pattern
+2. Records each request outcome
+3. Returns a structured timeline
+
+Example (Token Bucket):
+
+```json
+{
+  "algorithm": "TOKEN_BUCKET",
+  "summary": {
+    "allowed": 10,
+    "blocked": 3,
+    "config": {
+      "refillRatePerSec": 1,
+      "capacity": 5
+    }
+  },
+  "timeline": [
+    { "status": 200, "remaining": 4 },
+    { "status": 200, "remaining": 3 },
+    { "status": 200, "remaining": 2 },
+    { "status": 200, "remaining": 1 },
+    { "status": 200, "remaining": 0 },
+    { "status": 429, "retryAfterMs": 1000 },
+    { "status": 429, "retryAfterMs": 1000 },
+    { "status": 429, "retryAfterMs": 1000 },
+    { "comment": "triggered calls at 1 sec interval", "event": "MARKER" },
+    { "status": 200, "remaining": 0 }
+  ]
+}
+```
+
+## How to Use This Project
+
+1. Open Swagger UI
+2. Select an algorithm endpoint
+3. Trigger the test scenario
+4. Read the timeline top to bottom
+5. Ask:
+  - Why did requests fail here?
+  - Why did they recover here?
+  - What does this imply in real systems?
 
 ---
 
-## Supported Algorithms
+## Algorithms Covered
 
-### 1. Token Bucket (Default)
-- Allows bursts up to a fixed capacity
-- Tokens refill at a fixed rate per second
-- Each request consumes one token
-
-**Best for:** APIs that need smooth traffic handling with bursts.
+- Token Bucket
+- Fixed Window
+- Sliding Window
 
 ---
 
-### 2. Fixed Window
-- Time is divided into fixed windows (e.g. 6 seconds)
-- Requests are counted per window
-
-**Best for:** Simple and fast rate limiting with predictable limits.
-
----
-
-### 3. Sliding Window
-- Stores timestamps of requests
-- Removes outdated entries dynamically
-- Provides fairer request distribution than fixed windows
-
-**Best for:** Accurate rate limiting under spiky traffic.
-
----
-
-## Configuration
-All configuration is located in:
-
-`src/main/resources/application.properties`
-
-```properties
-# Max number of requests / tokens
-rate.request.limit.count=5
-
-# Time window in milliseconds (Fixed & Sliding Window)
-rate.request.limit.timeperiod=6000
-
-# Token refill rate per second (Token Bucket)
-rate.request.limit.refill.rate=1
-
-# Swagger configuration
-springdoc.api-docs.path=/v3/api-docs
-springdoc-swagger-ui.path=swagger-ui.html
+## How to Read the Timeline
+```
+status: 200 → request allowed
+status: 429 → rate limited
+remaining → remaining capacity (if applicable)
+retryAfterMs → time until next possible success
+MARKER → intentional pause or timing change
+```
